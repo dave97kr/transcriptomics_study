@@ -1,33 +1,31 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
-import numpy as np
-import pandas as pd
-
+# Load data
 raw_data = 'gse121411_tpmmatrix1.txt'
-data = np.genfromtxt(raw_data, delimiter='\t')
-df = pd.DataFrame(data)
+df = pd.read_csv(raw_data, delimiter='\t', header=None)
 
-index_data = 'gse121411_expressionmatrix1.txt' 
-df.index = np.genfromtxt(index_data, delimiter='\t', skip_header=3, usecols= [1])
+# Set index from another file
+index_data = 'gse121411_expressionmatrix1.txt'
+index_df = pd.read_csv(index_data, delimiter='\t', skiprows=3, usecols=[1], header=None)
+df.index = index_df.values.flatten()  # Assign index values from index_df
 
+# Load column names
 column_data = 'gse121411_expressionmatrix1.txt'
-row_index = 2  # Choose the desired row index containing the column names
-column_names = np.genfromtxt(column_data, delimiter='\t')
-selected_column_names = column_names[row_index,2:]
+column_names_df = pd.read_csv(column_data, delimiter='\t', nrows=1, header=None, skiprows=2)
+column_names = column_names_df.iloc[:, 2:].values.flatten()
 
-series_data = np.genfromtxt('gse121411_seriesmatrix.txt', delimiter='\t', skip_header=35, dtype=str)
+# Load series data
+series_data = pd.read_csv('gse121411_seriesmatrix.txt', delimiter='\t', skiprows=35, header=None)
 
-# Sample title 가져오기
-sample_title = series_data[0, 1:]
-sample_fromcolumn, sample_description = np.char.split(sample_title, " ")
+# Process sample title
+sample_title = series_data.iloc[0, 1:]
+sample_fromcolumn, sample_description = zip(*[s.split(' ', 1) for s in sample_title])
 
-sample_description = np.array(sample_description)
-for i in range(len(selected_column_names)):
+# Replace selected column names
+sample_description = list(sample_description)
+for i in range(len(column_names)):
     for j in range(len(sample_fromcolumn)):
-        if selected_column_names[i] == sample_fromcolumn[j]:
-            selected_column_names[i] = sample_description[j]
+        if column_names[i] == sample_fromcolumn[j]:
+            column_names[i] = sample_description[j]
 
-df.columns = selected_column_names
-
+# Set column names and save
+df.columns = column_names
 df.to_csv('tpmvalue_withindexandcolumn.csv', index=True, header=True)
