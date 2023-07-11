@@ -1,0 +1,28 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+import numpy as np
+
+def calculate_tpm(expression_matrix, gene_lengths):
+    tpm_matrix_raw = np.zeros_like(expression_matrix)  # Initialize genelength with zeros
+    valid_indices = gene_lengths != 0  # Find indices where rpkmmatrix is non-zero
+    tpm_matrix_raw[valid_indices] = expression_matrix[valid_indices] / gene_lengths[valid_indices]
+    
+    sum_expression_rough = np.sum(tpm_matrix_raw, axis=0) / 1e6
+    tpm_matrix = tpm_matrix_raw/ sum_expression_rough
+
+    return tpm_matrix
+
+
+
+# Read expression matrix from text file
+expression_matrix_file = 'gse121411_expressionmatrix1.txt'  # Replace with the path to your expression matrix text file
+expression_matrix = np.genfromtxt(expression_matrix_file, delimiter='\t', skip_header=3)
+selected_expression_matrixcolumns = expression_matrix[:, 2:]
+
+gene_length_file = 'gse121411_genelength.txt'
+gene_length = np.genfromtxt(gene_length_file, delimiter = '\t')
+
+tpm_matrix = calculate_tpm(selected_expression_matrixcolumns, gene_length)
+
+np.savetxt('gse121411_tpmmatrix1.txt', tpm_matrix, delimiter='\t')
