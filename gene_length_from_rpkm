@@ -1,0 +1,31 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+import numpy as np
+
+def genelength(expressionmatrix, rpkmmatrix):
+    genelength = np.zeros_like(expressionmatrix)  # Initialize genelength with zeros
+    valid_indices = rpkmmatrix != 0  # Find indices where rpkmmatrix is non-zero
+    genelength[valid_indices] = expressionmatrix[valid_indices] * 1e6 / rpkmmatrix[valid_indices]
+    
+    sum_expression = np.sum(expressionmatrix, axis=0)
+    sum_expression[sum_expression == 0] = 1  # Avoid division by zero in np.sum
+
+    genomiclength = genelength / sum_expression
+    return genomiclength
+
+# Read expression matrix from text file
+expression_matrix_file = '~.txt'  # Replace with the path to your expression matrix text file
+expression_matrix = np.genfromtxt(expression_matrix_file, delimiter='\t', skip_header=3)
+selected_expression_matrixcolumns = expression_matrix[:, 2:]
+
+# Read RPKM matrix from text file
+rpkm_matrix_file = '~.txt'  # Replace with the path to your RPKM matrix text file
+rpkm_matrix = np.genfromtxt(rpkm_matrix_file, delimiter='\t', skip_header=3)
+selected_rpkm_matrixcolumns = rpkm_matrix[:, 2:]
+
+gene_length = genelength(selected_expression_matrixcolumns, selected_rpkm_matrixcolumns)
+
+np.savetxt('gse121411_genelength.txt', gene_length, delimiter='\t')
+
+#This genelength operates on one_dimension
