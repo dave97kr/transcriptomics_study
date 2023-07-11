@@ -1,19 +1,19 @@
 # Load data
-raw_data = 'gse121411_tpmmatrix1.txt'
+raw_data = '~.txt'
 df = pd.read_csv(raw_data, delimiter='\t', header=None)
 
 # Set index from another file
-index_data = 'gse121411_expressionmatrix1.txt'
+index_data = '~.txt'
 index_df = pd.read_csv(index_data, delimiter='\t', skiprows=3, usecols=[1], header=None)
 df.index = index_df.values.flatten()  # Assign index values from index_df
 
 # Load column names
-column_data = 'gse121411_expressionmatrix1.txt'
+column_data = '~.txt'
 column_names_df = pd.read_csv(column_data, delimiter='\t', nrows=1, header=None, skiprows=2)
 column_names = column_names_df.iloc[:, 2:].values.flatten()
 
 # Load series data
-series_data = pd.read_csv('gse121411_seriesmatrix.txt', delimiter='\t', skiprows=35, header=None)
+series_data = pd.read_csv('~.txt', delimiter='\t', skiprows=35, header=None)
 
 # Process sample title
 sample_title = series_data.iloc[0, 1:]
